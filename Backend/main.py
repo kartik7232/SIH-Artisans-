@@ -18,6 +18,11 @@ from fastapi import UploadFile, File, HTTPException
 from uuid import uuid4
 
 from supabase_client import supabase
+
+from ai_service import analyze_product_image
+import json
+
+from ai_service import recommend_product_price
 app = FastAPI(title="Artisan AI Backend")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -216,4 +221,94 @@ async def upload_product_image(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=500,
             detail=f"Image upload failed: {str(e)}"
+        )
+
+@app.post("/products/analyze-image")
+async def analyze_image(file: UploadFile = File(...)):
+
+    allowed_types = {
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    }
+
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="Only JPG, PNG, and WEBP images are allowed"
+        )
+
+    image_bytes = await file.read()
+
+    if not image_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded image is empty"
+        )
+
+    try:
+        result = analyze_product_image(
+            image_bytes,
+            file.content_type
+        )
+
+        # Remove possible markdown JSON formatting
+        result = result.strip()
+
+        if result.startswith("```"):
+            result = result.replace("```json", "")
+            result = result.replace("```", "")
+            result = result.strip()
+
+        result_json = json.loads(result)
+
+        return {
+            "message": "Image analyzed successfully",
+            "analysis": result_json
+        }
+
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=500,
+            detail="AI returned an invalid JSON response"
+        )
+
+    except Exception as e:
+        print("GEMINI ERROR:", repr(e))
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"AI analysis failed: {str(e)}"
+        )
+
+@app.post("/products/recommend-price")
+async def recommend_price(
+    category: str,
+    description: str
+):
+    try:
+        result = recommend_product_price(
+            category,
+            description
+        )
+
+        result_json = json.loads(result)
+
+        return {
+            "message": "Price recommendation generated successfully",
+            "pricing": result_json
+        }
+
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=500,
+            detail="AI returned invalid pricing JSON"
+        )
+
+    except Exception as e:
+        print("PRICING ERROR:", repr(e))
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Price recommendation failed: {str(e)}"
         )
