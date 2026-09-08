@@ -1,0 +1,584 @@
+/* KarigarAI Global Stylesheet */
+@import './theme/cultureTheme.css';
+
+:root {
+  --primary: #A9543A;
+  --primary-hover: #8F4530;
+  --primary-light: #F7EBE6;
+  --primary-glow: rgba(169, 84, 58, 0.25);
+
+  --secondary: #1B2A4A;
+  --secondary-hover: #121D33;
+  --secondary-light: #EBF0F8;
+
+  --accent-gold: #C59A3F;
+  --accent-gold-light: #FBF4E4;
+  --accent-green: #2E7D32;
+  --accent-green-light: #E8F5E9;
+
+  --bg-main: #FBF9F4;
+  --bg-ivory: #F4EFE4;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F6F2EA;
+
+  --text-primary: #242220;
+  --text-secondary: #6B655D;
+  --text-muted: #968F84;
+  --text-inverse: #FFFFFF;
+
+  --border-light: rgba(41, 39, 37, 0.08);
+  --border-medium: rgba(41, 39, 37, 0.16);
+  --border-focus: #A9543A;
+
+  --shadow-sm: 0 2px 8px rgba(36, 34, 32, 0.04);
+  --shadow-md: 0 8px 24px -4px rgba(36, 34, 32, 0.08);
+  --shadow-lg: 0 16px 40px -8px rgba(36, 34, 32, 0.12);
+  --shadow-glow: 0 0 24px rgba(169, 84, 58, 0.25);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --font-serif: 'Cormorant Garamond', 'Cinzel', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* Base Container */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
+/* Typography Helpers */
+.serif-title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin-bottom: 32px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: #FFFFFF;
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-subtle);
+  border-color: var(--primary);
+}
+
+.btn-accent {
+  background: var(--secondary);
+  color: #FFFFFF;
+}
+
+.btn-accent:hover {
+  background: var(--secondary-hover);
+}
+
+.btn-voice {
+  background: linear-gradient(135deg, #A9543A 0%, #C59A3F 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-full);
+  padding: 14px 28px;
+  font-size: 1.05rem;
+  box-shadow: 0 4px 20px rgba(169, 84, 58, 0.35);
+  animation: subtlePulse 3s infinite;
+}
+
+@keyframes subtlePulse {
+  0% { box-shadow: 0 0 0 0 rgba(169, 84, 58, 0.4); }
+  70% { box-shadow: 0 0 0 14px rgba(169, 84, 58, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(169, 84, 58, 0); }
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-gi {
+  background: var(--accent-gold-light);
+  color: #8B6514;
+  border: 1px solid rgba(197, 154, 63, 0.3);
+}
+
+.badge-artisan {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid rgba(169, 84, 58, 0.2);
+}
+
+.badge-ai {
+  background: var(--secondary-light);
+  color: var(--secondary);
+  border: 1px solid rgba(27, 42, 74, 0.2);
+}
+
+.badge-success {
+  background: var(--accent-green-light);
+  color: var(--accent-green);
+}
+
+/* Cards & Containers */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Product Card */
+.product-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(169, 84, 58, 0.3);
+}
+
+.product-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: #F0EDE6;
+  overflow: hidden;
+}
+
+.product-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-image-wrap img {
+  transform: scale(1.05);
+}
+
+.product-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.product-artisan-info {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-price-row {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.product-price {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* Audio Waveform Live Animation */
+.waveform-bars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+}
+
+.waveform-bar {
+  width: 4px;
+  background: var(--primary);
+  border-radius: 4px;
+  animation: waveAnim 1s ease-in-out infinite;
+}
+
+.waveform-bar:nth-child(1) { height: 35%; animation-delay: 0.1s; }
+.waveform-bar:nth-child(2) { height: 75%; animation-delay: 0.2s; }
+.waveform-bar:nth-child(3) { height: 95%; animation-delay: 0.3s; }
+.waveform-bar:nth-child(4) { height: 60%; animation-delay: 0.4s; }
+.waveform-bar:nth-child(5) { height: 85%; animation-delay: 0.15s; }
+.waveform-bar:nth-child(6) { height: 40%; animation-delay: 0.25s; }
+.waveform-bar:nth-child(7) { height: 90%; animation-delay: 0.35s; }
+.waveform-bar:nth-child(8) { height: 50%; animation-delay: 0.45s; }
+
+@keyframes waveAnim {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
+/* Modal Backdrop */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  max-width: 720px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: modalIn 0.25s ease-out;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Floating AI Assistant */
+.floating-assistant-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 990;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, #1B2A4A 0%, #A9543A 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 30px rgba(27, 42, 74, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-assistant-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 36px rgba(169, 84, 58, 0.5);
+}
+
+@media (max-width: 768px) {
+  .floating-assistant-btn {
+    bottom: 84px;
+    right: 16px;
+    padding: 10px 18px;
+  }
+}
+
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-light);
+  z-index: 950;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.mobile-nav-item.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.mobile-nav-item.center-plus {
+  margin-top: -24px;
+  background: var(--primary);
+  color: #FFFFFF;
+  border-radius: var(--radius-full);
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(169, 84, 58, 0.4);
+}
+
+/* ==========================================================================
+   KARIGAR TOAST NOTIFICATION SYSTEM
+   ========================================================================== */
+.karigar-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+  width: calc(100vw - 48px);
+  pointer-events: none;
+}
+
+.karigar-toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(27, 42, 74, 0.16), 0 2px 8px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: slideInToast 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
+}
+
+@keyframes slideInToast {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.karigar-toast-success {
+  background: rgba(240, 253, 244, 0.96);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #065f46;
+}
+
+.karigar-toast-error {
+  background: rgba(254, 242, 242, 0.96);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #991b1b;
+}
+
+.karigar-toast-warning {
+  background: rgba(255, 251, 235, 0.96);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #92400e;
+}
+
+.karigar-toast-info {
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(169, 84, 58, 0.25);
+  color: #1B2A4A;
+}
+
+.toast-icon-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-top: 1px;
+}
+
+.toast-icon-success { color: #059669; }
+.toast-icon-error { color: #dc2626; }
+.toast-icon-warning { color: #d97706; }
+.toast-icon-info { color: #A9543A; }
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  margin-bottom: 3px;
+  font-family: var(--font-heading);
+}
+
+.toast-message {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  word-break: break-word;
+  opacity: 0.92;
+}
+
+.toast-close-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  color: inherit;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 640px) {
+  .karigar-toast-container {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+}
+
