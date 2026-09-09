@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+
 from sqlalchemy.orm import Session
 
 from passlib.context import CryptContext
@@ -7,9 +8,11 @@ from database import engine, Base, SessionLocal
 
 from models.user import UserModel
 from models.product import ProductModel
+from models.order import OrderModel
 
 from schemas.user import UserCreate, UserLogin, UserResponse
 from schemas.product import ProductCreate, ProductResponse
+from schemas.order import OrderCreate, OrderResponse
 
 from auth import create_access_token, verify_access_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -20,9 +23,31 @@ from uuid import uuid4
 from supabase_client import supabase
 
 from ai_service import analyze_product_image
+
 import json
 
 from ai_service import recommend_product_price
+
+from models.cart import CartModel
+from schemas.cart import CartCreate, CartResponse
+
+from models.wishlist import WishlistModel
+from schemas.wishlist import (
+    WishlistCreate,
+    WishlistResponse
+)
+
+from models.review import ReviewModel
+from schemas.review import (
+    ReviewCreate,
+    ReviewResponse
+)
+
+from sqlalchemy import func
+
+from models.rfq import RFQModel
+from schemas.rfq import RFQCreate, RFQResponse
+
 app = FastAPI(title="Artisan AI Backend")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -154,6 +179,65 @@ def create_product(
     db.refresh(new_product)
 
     return new_product
+
+@app.post(
+    "/orders",
+    response_model=OrderResponse
+)
+def create_order(
+    order: OrderCreate,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    product = db.query(ProductModel).filter(
+        ProductModel.id == order.product_id
+    ).first()
+
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found"
+        )
+
+    total_price = (
+        product.price * order.quantity
+    )
+
+    new_order = OrderModel(
+        buyer_id=buyer_id,
+        product_id=product.id,
+        quantity=order.quantity,
+        total_price=total_price
+    )
+
+    db.add(new_order)
+    db.commit()
+    db.refresh(new_order)
+
+    return new_order
+
+@app.get(
+    "/orders",
+    response_model=list[OrderResponse]
+)
+def get_my_orders(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    orders = db.query(OrderModel).filter(
+        OrderModel.buyer_id == buyer_id
+    ).all()
+
+    return orders
+
 
 @app.get("/products", response_model=list[ProductResponse])
 def get_products(
@@ -312,3 +396,320 @@ async def recommend_price(
             status_code=500,
             detail=f"Price recommendation failed: {str(e)}"
         )
+
+@app.post(
+    "/cart",
+    response_model=CartResponse
+)
+def add_to_cart(
+    cart: CartCreate,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    item = CartModel(
+        buyer_id=buyer_id,
+        product_id=cart.product_id,
+        quantity=cart.quantity
+    )
+
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+
+    return item
+
+@app.get(
+    "/cart",
+    response_model=list[CartResponse]
+)
+def get_cart(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    return (
+        db.query(CartModel)
+        .filter(CartModel.buyer_id == buyer_id)
+        .all()
+    )
+
+@app.delete("/cart/{cart_id}")
+def delete_cart_item(
+    cart_id: int,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    item = (
+        db.query(CartModel)
+        .filter(
+            CartModel.id == cart_id,
+            CartModel.buyer_id == buyer_id
+        )
+        .first()
+    )
+
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail="Cart item not found"
+        )
+
+    db.delete(item)
+    db.commit()
+
+    return {"message": "Removed from cart"}
+
+@app.post(
+    "/wishlist",
+    response_model=WishlistResponse
+)
+def add_to_wishlist(
+    wishlist: WishlistCreate,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    item = WishlistModel(
+        buyer_id=buyer_id,
+        product_id=wishlist.product_id
+    )
+
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+
+    return item
+
+@app.get(
+    "/wishlist",
+    response_model=list[WishlistResponse]
+)
+def get_wishlist(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    return (
+        db.query(WishlistModel)
+        .filter(
+            WishlistModel.buyer_id == buyer_id
+        )
+        .all()
+    )
+
+@app.delete("/wishlist/{wishlist_id}")
+def delete_wishlist_item(
+    wishlist_id: int,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    item = (
+        db.query(WishlistModel)
+        .filter(
+            WishlistModel.id == wishlist_id,
+            WishlistModel.buyer_id == buyer_id
+        )
+        .first()
+    )
+
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail="Wishlist item not found"
+        )
+
+    db.delete(item)
+    db.commit()
+
+    return {
+        "message": "Removed from wishlist"
+    }
+
+
+@app.post(
+    "/reviews",
+    response_model=ReviewResponse
+)
+def create_review(
+    review: ReviewCreate,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    if review.rating < 1 or review.rating > 5:
+        raise HTTPException(
+            status_code=400,
+            detail="Rating must be between 1 and 5"
+        )
+
+    new_review = ReviewModel(
+        buyer_id=buyer_id,
+        product_id=review.product_id,
+        rating=review.rating,
+        comment=review.comment
+    )
+
+    db.add(new_review)
+    db.commit()
+    db.refresh(new_review)
+
+    return new_review
+
+@app.get(
+    "/reviews/{product_id}",
+    response_model=list[ReviewResponse]
+)
+def get_reviews(
+    product_id: int,
+    db: Session = Depends(get_db)
+):
+    return (
+        db.query(ReviewModel)
+        .filter(
+            ReviewModel.product_id == product_id
+        )
+        .all()
+    )
+
+@app.get("/products/{product_id}/rating")
+def product_rating(
+    product_id: int,
+    db: Session = Depends(get_db)
+):
+    avg_rating = (
+        db.query(func.avg(ReviewModel.rating))
+        .filter(
+            ReviewModel.product_id == product_id
+        )
+        .scalar()
+    )
+
+    return {
+        "product_id": product_id,
+        "average_rating": round(avg_rating or 0, 2)
+    }
+
+@app.post(
+    "/rfqs",
+    response_model=RFQResponse
+)
+def create_rfq(
+    rfq: RFQCreate,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    new_rfq = RFQModel(
+        buyer_id=buyer_id,
+        product_id=rfq.product_id,
+        quantity=rfq.quantity,
+        message=rfq.message
+    )
+
+    db.add(new_rfq)
+    db.commit()
+    db.refresh(new_rfq)
+
+    return new_rfq
+
+@app.post(
+    "/rfqs",
+    response_model=RFQResponse
+)
+def create_rfq(
+    rfq: RFQCreate,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    new_rfq = RFQModel(
+        buyer_id=buyer_id,
+        product_id=rfq.product_id,
+        quantity=rfq.quantity,
+        message=rfq.message
+    )
+
+    db.add(new_rfq)
+    db.commit()
+    db.refresh(new_rfq)
+
+    return new_rfq
+
+@app.get(
+    "/rfqs",
+    response_model=list[RFQResponse]
+)
+def get_rfqs(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = verify_access_token(token)
+
+    buyer_id = int(payload.get("sub"))
+
+    return (
+        db.query(RFQModel)
+        .filter(
+            RFQModel.buyer_id == buyer_id
+        )
+        .all()
+    )
+
+@app.put("/rfqs/{rfq_id}/status")
+def update_rfq_status(
+    rfq_id: int,
+    status: str,
+    db: Session = Depends(get_db)
+):
+    rfq = (
+        db.query(RFQModel)
+        .filter(RFQModel.id == rfq_id)
+        .first()
+    )
+
+    if not rfq:
+        raise HTTPException(
+            status_code=404,
+            detail="RFQ not found"
+        )
+
+    rfq.status = status
+
+    db.commit()
+
+    return {
+        "message": "RFQ updated",
+        "status": status
+    }
+
+
