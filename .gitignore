@@ -1,6 +1,10 @@
 # Frontend dependencies and build output
 frontend artisans/node_modules/
 frontend artisans/dist/
+Frontend/node_modules/
+Frontend/dist/
+node_modules/
+dist/
 
 # Local environment files
 .env
